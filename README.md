@@ -8,7 +8,7 @@ It can be used both in the browser and on the server side.
 ### Node
 
 ```javascript
-var WunderlistSDK = require('wunderlist.sdk');
+var WunderlistSDK = require('wunderlist');
 var wunderlistAPI = new WunderlistSDK({
   'accessToken': 'a user access_token',
   'clientID': 'your client_id'
@@ -71,7 +71,7 @@ This allows creating an instance of a single service rather than all services fo
 ```javascript
 'use strict';
 
-var sdk = require('wunderlist.sdk');
+var sdk = require('wunderlist');
 var oauthConfig = require('../../config/oauth.json');
 
 sdk.prototype.setupLogging({
@@ -123,8 +123,8 @@ If you are on a vanilla system, you need some tools
 
 ### Clone the repo & start developing
 
-    $ git clone git@github.com:wunderlist/wunderlist.sdk.git
-    $ cd wunderlist.sdk
+    $ git clone git@github.com:wunderlist/wunderlist.js.git
+    $ cd wunderlist.js
     $ make start
 
 ## Run tests
