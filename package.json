@@ -1,7 +1,7 @@
 {
   "author": "6Wunderkinder GmbH",
   "name": "wunderlist",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://github.com/wunderlist/wunderlist.js",
   "main": "public/wunderlist/Wunderlist.js",
   "repository": {
