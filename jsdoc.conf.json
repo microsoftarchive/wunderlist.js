@@ -1,0 +1,49 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+
+  "source": {
+    "include": [
+      "README.md",
+      "public/config/default.js",
+      "public/deferreds",
+      "public/helpers",
+      "public/io",
+      "public/models",
+      "public/schemas",
+      "public/services",
+      "public/validators",
+      "public/wunderbits",
+      "public/wunderlist"
+    ],
+
+    "exclude": [
+      "public/vendor"
+    ],
+
+    "includePattern": ".+\\.js(doc)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+
+  "plugins": [ "plugins/markdown" ],
+
+  "markdown": {
+    "parser": "gfm"
+  },
+
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  },
+
+  "opts": {
+    "encoding": "utf8",
+    "template": "./templates/jsdoc/",
+    "destination": "./docs/",
+    "recurse": true,
+    "query": "value",
+    "private": true,
+    "lenient": true
+  }
+}

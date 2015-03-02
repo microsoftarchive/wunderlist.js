@@ -1,0 +1,36 @@
+{
+  "predef": [
+    "require",
+    "window",
+    "setInterval",
+    "setTimeout",
+    "clearTimeout",
+    "clearInterval",
+    "XMLHttpRequest"
+  ],
+
+  "asi": false,
+  "boss": false,
+  "browser": false,
+  "camelcase": false,
+  "curly": false,
+  "eqeqeq": true,
+  "eqnull": false,
+  "esnext": false,
+  "expr": true,
+  "expr": true,
+  "indent": 2,
+  "jquery": false,
+  "laxcomma": false,
+  "newcap": true,
+  "node": true,
+  "quotmark": "single",
+  "strict": true,
+  "trailing": false,
+  "undef": true,
+  "unused": true,
+  "white": false,
+
+  "maxcomplexity": 8,
+  "maxstatements": 20
+}

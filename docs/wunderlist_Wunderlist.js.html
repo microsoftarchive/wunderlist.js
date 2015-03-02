@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: wunderlist/Wunderlist.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+    <!-- webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,400italic' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+<h1 class="page-title">Source: wunderlist/Wunderlist.js</h1>
+
+<div id="main">
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>'use strict';
+
+/**
+  * @module wunderlist/Wunderlist
+
+  * @requires module:wunderbits.core/WBEventEmitter
+  * @requires module:wunderbits/lib/dependencies
+
+  * @requires module:services/Lists
+  * @requires module:services/Memberships
+  * @requires module:services/Notes
+  * @requires module:services/Reminders
+  * @requires module:services/Settings
+  * @requires module:services/Subtasks
+  * @requires module:services/Tasks
+  * @requires module:services/UserEvents
+  * @requires module:services/Activities
+  * @requires module:services/Conversations
+  * @requires module:services/UnreadCounts
+
+  * @requires module:io/RestSocket
+  *
+  * @extends module:wunderbits.core/WBEventEmitter
+
+  * @example &lt;caption>Create an instance of the main Wunderlist class&lt;/caption>
+    var WunderlistSDK = require('wunderlist/Wunderlist');
+
+    // Returns an instance of the Wunderlist SDK setup with the correct client ID and user access token
+    // and sets up a single WebSocket connection for REST over socket proxying
+    var wunderlistSDK = new WunderlistSDK({
+      'accessToken': 'a user token',
+      'clientID': 'your application id'
+    });
+
+    wunderlistSDK.initialized.done(function () {
+      // Where handleListData and handleError are functions
+      // 'http' here can be replaced with 'socket' to use a WebSocket connection for all requests
+      wunderlistSDK.http.lists.all()
+        // handleListData will be called with the object parsed from the response JSON
+        .done(handleListData)
+        // handleError will be called with the error/event
+        .fail(handleError);
+    });
+
+  */
+
+var core = require('wunderbits.core');
+var WBEventEmitter = core.WBEventEmitter;
+var WBDeferred = core.WBDeferred;
+var extend = core.lib.extend;
+
+var AjaxTransport = require('../io/io/AjaxTransport');
+var config = require('../config/default');
+var ApplicationStateModel = require('../models/ApplicationState');
+var IOHttp = require('../io/IO');
+var RestSocket = require('../io/RestSocket');
+var PlatformHeaders = require('../helpers/PlatformHeaders');
+var ServiceClasses = require('../services');
+
+var MagiConsole = require('magiconsole');
+
+var _super = WBEventEmitter.prototype;
+
+var Wunderlist = WBEventEmitter.extend({
+
+  /**
+    * @todo revisit in the future and remove,
+    * auth will probably only be available through OAuth.
+    */
+  'auth': undefined,
+
+  /**
+    * Deferred object for tracking initialization success or failure.
+    * @type {deferred}
+    */
+  'state': undefined,
+
+  /**
+    * Flag to denote network connectivity.
+    * Note: this flag is only to denote a network connection, not API status.
+    */
+  'online': undefined,
+
+  /**
+    * State promise for attaching to initialization events.  Promise of state.
+    * @type {promise}
+    */
+  'initialized': undefined,
+
+  /**
+    * Holds references to instances of API HTTP service modules once Wunderlist initialization is completed and successful.
+    * @type {object}
+    * @property {instance} [lists] - HTTP Instance of {@link module:services/Lists}
+    * @property {instance} [memberships] - HTTP Instance of {@link module:services/Memberships}
+    * @property {instance} [notes]- HTTP Instance of {@link module:services/Notes}
+    * @property {instance} [reminders] - HTTP Instance of {@link module:services/Reminders}
+    * @property {instance} [settings] - HTTP Instance of {@link module:services/Settings}
+    * @property {instance} [subtasks] - HTTP Instance of {@link module:services/Subtasks}
+    * @property {instance} [tasks] - HTTP Instance of {@link module:services/Tasks}
+    * @property {instance} [userEvents] - HTTP Instance of {@link module:services/UserEvents}
+    */
+  'http': undefined,
+
+  /**
+    * Holds references to instances of API WebSocket service modules once Wunderlist initialization is completed and successful.
+    * @type {object}
+    * @property {instance} [lists] - WebSocket Instance of {@link module:services/Lists}
+    * @property {instance} [memberships] - WebSocket Instance of {@link module:services/Memberships}
+    * @property {instance} [notes]- WebSocket Instance of {@link module:services/Notes}
+    * @property {instance} [reminders] - WebSocket Instance of {@link module:services/Reminders}
+    * @property {instance} [settings] - WebSocket Instance of {@link module:services/Settings}
+    * @property {instance} [subtasks] - WebSocket Instance of {@link module:services/Subtasks}
+    * @property {instance} [tasks] - WebSocket Instance of {@link module:services/Tasks}
+    * @property {instance} [userEvents] - WebSocket Instance of {@link module:services/UserEvents}
+    */
+  'socket': undefined,
+
+  /**
+    * Main interface to Wunderlist API service modules.
+    * @constructor
+    * @param {object} options - Class initialization options.
+    * @param {string} options.clientID - Client ID is required.
+    * @param {string} options.accessToken - Wunderlist access token.
+    * @param {array} [options.services] - Services to be initialize.
+    *     If not present, all service modules will be initialized.
+    *     ex: 'services': ['lists', 'tasks']
+    * @param {boolean} [options.debug] - Enable logging
+    * @alias module:wunderlist/Wunderlist
+    */
+  'initialize': function (options) {
+
+    var self = this;
+    _super.initialize.apply(self, arguments);
+
+    self.options = options = extend(config, options || {});
+
+    self.setupLogging(self.options);
+
+    self.validateOptions();
+
+    self.appState = new ApplicationStateModel(options);
+
+    // initialise PlatformHeader
+    PlatformHeaders.init(options);
+
+    var state = self.state = new WBDeferred();
+    self.initialized = self.state.promise();
+
+    self.online = self.appState.isOnline();
+
+    self.start()
+      .done(state.resolveWith, state, self)
+      .fail(state.reject, state);
+  },
+
+  'setupLogging': function (options) {
+
+    options.logLevel &amp;&amp; MagiConsole.setLevel(options.logLevel);
+    options.logPattern &amp;&amp; MagiConsole.setPattern(options.logPattern);
+  },
+
+  /**
+    * Returns true once self.initialized is resolved.
+    * @type {boolean}
+    */
+  'isInitialized': function () {
+
+    var self = this;
+    return !!(self.initialized &amp;&amp; self.initialized.state() === 'resolved');
+  },
+
+  /**
+    * Calls services initialization if/once authorized
+    * @returns {promise}
+    */
+  'start': function () {
+
+    var self = this;
+    var promise;
+
+    promise = self.getServices();
+
+    // watch online state
+    self.bindTo(self.appState, 'change:online', 'onOnlineOffline');
+
+    // report timings
+    self.bindTo(AjaxTransport, 'timing:io', 'onIOTiming');
+
+    return promise;
+  },
+
+  /**
+    * Set self.online state and trigger exposed online/offline event
+    */
+  'onOnlineOffline': function () {
+
+    var self = this;
+    self.online = self.appState.isOnline();
+    self.trigger(self.online ? 'online' : 'offline');
+  },
+
+  'onIOTiming': function (ioTimingData) {
+
+    var self = this;
+    self.trigger('timing:io', ioTimingData);
+  },
+
+  /**
+    * Creates instances of service modules according to initialization options.
+    * @param {array} [services] - Array of services to initialize.
+    * Default is initialize all services.
+    * @returns {promise} Hash of initialized services.
+    */
+  'getServices': function () {
+
+    var self = this;
+
+    var compiledServices = {
+      'http': {},
+      'socket': {}
+    };
+    var service, services, Klass;
+    var deferred = new WBDeferred();
+
+    var accessToken = self.appState.attributes.accessToken;
+
+    self.createSocket(accessToken).done(function createServices () {
+
+      // clear old services
+      self.http = undefined;
+      self.socket = undefined;
+
+      // from args, options, or default to all
+      services = services || self.options.services || Object.keys(ServiceClasses);
+
+      self.httpIO = new IOHttp({
+        'config': self.appState.toJSON()
+      });
+
+      for (var i = 0, len = services.length; i &lt; len; i++) {
+        service = services[i];
+        Klass = ServiceClasses[service];
+
+        // http service
+        compiledServices.http[service] = new Klass({
+          'appState': self.appState,
+          'httpIO': self.httpIO
+        });
+        self.bindTo(compiledServices.http[service], 'unauthorized', self.onUnauthorized);
+
+        // socket service
+        compiledServices.socket[service] = new Klass({
+          'websocket': true,
+          'restSocket': self.restSocket,
+          'appState': self.appState
+        });
+      }
+
+      self.http = compiledServices.http;
+      self.socket = compiledServices.socket;
+
+      deferred.resolve(compiledServices);
+    });
+
+    return deferred.promise();
+  },
+
+  'isSocketOnline': function () {
+
+    var self = this;
+
+    var restSocket = self.restSocket;
+    var socket = restSocket &amp;&amp; restSocket.socket;
+    var webSocketConnected = !!(socket &amp;&amp; socket.isConnected());
+
+    return webSocketConnected;
+  },
+
+  /**
+    * Returns self.socket or self.http depending on self.restSocket.socket.connected
+    */
+  'getOutlet': function () {
+
+    var self = this;
+
+    var webSocketConnected = self.isSocketOnline();
+    var forcedHttp = !!self.options.forceHTTP;
+
+    return (webSocketConnected &amp;&amp; !forcedHttp) ? self.socket : self.http;
+  },
+
+  /**
+    * Creates an instance of RestSocket using the current appState configuration
+    * @fires module:wunderlist/Wunderlist#event
+    * @returns {promise} Promise of WebSocket ready deferred
+    */
+  'createSocket': function () {
+
+    var self = this;
+
+    self.restSocket &amp;&amp; self.unbindFrom(self.restSocket);
+
+    var restSocket = new RestSocket({
+      'appState': self.appState,
+      'config': self.options
+    });
+    self.restSocket = restSocket;
+
+    self.bindTo(restSocket, 'event', function (data) {
+
+      /**
+        * Realtime events messages event.
+        * @event module:wunderlist/Wunderlist#event
+        * @type {object}
+        */
+      self.trigger('event', data);
+    });
+
+    self.bindTo(restSocket, 'desktopNotification', function (data) {
+
+      /**
+        * Realtime desktop notifications.
+        * @event module:wunderlist/Wunderlist#desktopNotification
+        * @type {object}
+        */
+      self.trigger('desktopNotification', data);
+    });
+
+    self.bindTo(restSocket, 'unauthorized', self.onUnauthorized);
+    self.bindTo(restSocket, 'timing:io', 'onIOTiming');
+
+    return restSocket.ready.promise();
+  },
+
+  /**
+    * Destroys instance of Wunderlist on unauthorized event.
+    */
+  'onUnauthorized': function () {
+
+    var self = this;
+    self.trigger('unauthorized');
+    self.destroy();
+  },
+
+  /**
+    * Method to destroy and clean up instance.
+    */
+  'destroy': function () {
+
+    var self = this;
+
+    // kill the socket
+    self.restSocket &amp;&amp; self.restSocket.destroy();
+
+    // clear all the bindings
+    self.unbindAll();
+
+    // destroy all the services
+    var protocols = ['http', 'socket'];
+    protocols.forEach(function (protocol) {
+
+      var theService;
+      for (var service in self[protocol]) {
+        theService = self[protocol][service];
+        theService.destroy &amp;&amp; theService.destroy();
+      }
+      self[protocol] = undefined;
+    });
+
+    self.appState.destroy();
+
+    // delete all properties
+    // make sure a destroyed object is not keeping other
+    // objects alive by reference
+    function killEverything (obj) {
+      for (var key in obj) {
+        obj[key] = undefined;
+      }
+    }
+    killEverything(self);
+
+    // flag as destroyed, so objects internal methods
+    // can optionally check this before execution
+    self.destroyed = true;
+  },
+
+  /** TRUE when instance has been destroyed */
+  'destroyed': false,
+
+  /**
+    * Validates initialization options
+    * @returns {boolean} True if options are valid
+    */
+  'validateOptions': function () {
+
+    var self = this;
+    var options = self.options || {};
+
+    var validAuthCredentials = !!options.accessToken;
+    if (!options.clientID || !validAuthCredentials) {
+      throw new Error('Cannot initialize the Wunderlist SDK without a Client ID or auth credentials');
+    }
+  },
+
+  'cancelInflightCreate': function (requestID, onlineID, revision) {
+
+    var self = this;
+
+    var restSocket = self.restSocket;
+    var httpIO = self.httpIO;
+    restSocket &amp;&amp; restSocket.cancelInflightCreate(requestID, onlineID, revision);
+    httpIO &amp;&amp; httpIO.cancelInflightCreate(requestID, onlineID, revision);
+  }
+}, {
+  'services': ServiceClasses,
+  'headers': PlatformHeaders
+});
+
+module.exports = Wunderlist;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav class="index-nav">
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-config_default.html">config/default</a></li><li><a href="module-helpers_HealthCheck.html">helpers/HealthCheck</a></li><li><a href="module-helpers_Logger.html">helpers/Logger</a></li><li><a href="module-helpers_PlatformHeaders.html">helpers/PlatformHeaders</a></li><li><a href="module-helpers_URL.html">helpers/URL</a></li><li><a href="module-io_IO.html">io/IO</a></li><li><a href="module-io_io_AjaxTransport.html">io/io/AjaxTransport</a></li><li><a href="module-io_io_NativeWebSocket.html">io/io/NativeWebSocket</a></li><li><a href="module-io_io_NativeXMLHttpRequest.html">io/io/NativeXMLHttpRequest</a></li><li><a href="module-io_io_WebSocket.html">io/io/WebSocket</a></li><li><a href="module-io_mixins_RequestQueueMixin.html">io/mixins/RequestQueueMixin</a></li><li><a href="module-io_RestSocket.html">io/RestSocket</a></li><li><a href="module-services_Activities.html">services/Activities</a></li><li><a href="module-services_AuthenticatedService.html">services/AuthenticatedService</a></li><li><a href="module-services_Conversations.html">services/Conversations</a></li><li><a href="module-services_Export.html">services/Export</a></li><li><a href="module-services_Features.html">services/Features</a></li><li><a href="module-services_Files.html">services/Files</a></li><li><a href="module-services_Import.html">services/Import</a></li><li><a href="module-services_ListPositions.html">services/ListPositions</a></li><li><a href="module-services_Lists.html">services/Lists</a></li><li><a href="module-services_Memberships.html">services/Memberships</a></li><li><a href="module-services_Mixin_ServiceCreate.html">services/Mixin/ServiceCreate</a></li><li><a href="module-services_Mixin_ServiceDelete.html">services/Mixin/ServiceDelete</a></li><li><a href="module-services_Mixin_ServiceGet.html">services/Mixin/ServiceGet</a></li><li><a href="module-services_Mixin_ServiceUpdate.html">services/Mixin/ServiceUpdate</a></li><li><a href="module-services_Mixins_BaseServiceMixin.html">services/Mixins/BaseServiceMixin</a></li><li><a href="module-services_Notes.html">services/Notes</a></li><li><a href="module-services_Previews.html">services/Previews</a></li><li><a href="module-services_Products.html">services/Products</a></li><li><a href="module-services_Reminders.html">services/Reminders</a></li><li><a href="module-services_Root.html">services/Root</a></li><li><a href="module-services_Service.html">services/Service</a></li><li><a href="module-services_ServiceGetOnly.html">services/ServiceGetOnly</a></li><li><a href="module-services_Services.html">services/Services</a></li><li><a href="module-services_Settings.html">services/Settings</a></li><li><a href="module-services_SubtaskPositions.html">services/SubtaskPositions</a></li><li><a href="module-services_Subtasks.html">services/Subtasks</a></li><li><a href="module-services_TaskComments.html">services/TaskComments</a></li><li><a href="module-services_TaskCommentsStates.html">services/TaskCommentsStates</a></li><li><a href="module-services_TaskPositions.html">services/TaskPositions</a></li><li><a href="module-services_Tasks.html">services/Tasks</a></li><li><a href="module-services_TasksCount.html">services/TasksCount</a></li><li><a href="module-services_UnreadCounts.html">services/UnreadCounts</a></li><li><a href="module-services_Uploads.html">services/Uploads</a></li><li><a href="module-services_User.html">services/User</a></li><li><a href="module-services_Users.html">services/Users</a></li><li><a href="module-validators_SchemaValidator.html">validators/SchemaValidator</a></li><li><a href="module-wunderbits_lib_SafeParse.html">wunderbits/lib/SafeParse</a></li><li><a href="module-wunderlist_Wunderlist.html">wunderlist/Wunderlist</a></li></ul><h3>Events</h3><ul><li><a href="module-io_IO.html#event:unauthorized">unauthorized</a></li><li><a href="module-io_io_WebSocket.html#event:close">close</a></li><li><a href="module-io_io_WebSocket.html#event:error">error</a></li><li><a href="module-io_io_WebSocket.html#event:message">message</a></li><li><a href="module-io_io_WebSocket.html#event:open">open</a></li><li><a href="module-io_io_WebSocket.html#event:timeout">timeout</a></li><li><a href="module-io_RestSocket.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-io_RestSocket.html#event:event">event</a></li><li><a href="module-io_RestSocket.html#event:someCRUDOperation">someCRUDOperation</a></li><li><a href="module-io_RestSocket.html#event:unauthorized">unauthorized</a></li><li><a href="module-wunderlist_Wunderlist.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-wunderlist_Wunderlist.html#event:event">event</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Mon Mar 02 2015 13:07:15 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

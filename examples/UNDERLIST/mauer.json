@@ -1,0 +1,7 @@
+{
+  "dependencyDir": "vendor",
+  "dependencies": {
+    "jquery": "2.0.3"
+  },
+  "patchesDir": "patches"
+}

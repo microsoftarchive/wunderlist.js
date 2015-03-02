@@ -1,0 +1,64 @@
+<?js
+  var doc = obj.doc;
+  var title = obj.title;
+  var self = this;
+?>
+
+<nav class="subsection-nav">
+  Jump to:
+  <ul>
+  <?js if (doc.augments && doc.augments.length) { ?>
+    <li><a href="#extends">Extends</a></li>
+  <?js } ?>
+
+  <?js if (doc.mixes && doc.mixes.length) { ?>
+    <li><a href="#mixes">Mixes</a></li>
+  <?js } ?>
+
+  <?js if (doc.requires && doc.requires.length) { ?>
+    <li><a href="#requires">Requires</a></li>
+  <?js } ?>
+
+  <?js
+      var classes = self.find({kind: 'class', memberof: doc.longname});
+      if (doc.kind !== 'globalobj' && classes && classes.length) {
+  ?>
+    <li><a href="#classes">Classes</a></li>
+  <?js } ?>
+
+  <?js
+      var namespaces = self.find({kind: 'namespace', memberof: doc.longname});
+      if (doc.kind !== 'globalobj' && namespaces && namespaces.length) {
+  ?>
+    <li><a href="#namespaces">Namespace</a></li>
+  <?js } ?>
+
+  <?js
+      var members = self.find({kind: 'member', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+      if (members && members.length && members.forEach) {
+  ?>
+    <li><a href="#members">Members</a></li>
+  <?js } ?>
+
+  <?js
+      var methods = self.find({kind: 'function', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+      if (methods && methods.length && methods.forEach) {
+  ?>
+    <li><a href="#methods">Methods</a></li>
+  <?js } ?>
+
+  <?js
+      var typedefs = self.find({kind: 'typedef', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+      if (typedefs && typedefs.length && typedefs.forEach) {
+  ?>
+    <li><a href="#types">Types</a></li>
+  <?js } ?>
+
+  <?js
+      var events = self.find({kind: 'event', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+      if (events && events.length && events.forEach) {
+  ?>
+    <li><a href="#events">Events</a></li>
+  <?js } ?>
+  </ul>
+</nav>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/Service.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+    <!-- webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,400italic' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+<h1 class="page-title">Source: services/Service.js</h1>
+
+<div id="main">
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>'use strict';
+
+/**
+  * @module services/Service
+
+  * @requires module:wunderbits.core/WBEventEmitter
+
+  * @requires module:io/IO
+
+  * @requires module:services/Mixin/ServiceGet
+  * @requires module:services/Mixin/ServiceDelete
+  * @requires module:services/Mixin/ServiceCreate
+  * @requires module:services/Mixin/ServiceUpdate
+
+  * @extends module:wunderbits.core/WBEventEmitter
+
+  * @mixes module:services/Mixin/ServiceGet
+  * @mixes module:services/Mixin/ServiceDelete
+  * @mixes module:services/Mixin/ServiceCreate
+  * @mixes module:services/Mixin/ServiceUpdate
+  */
+
+var core = require('wunderbits.core');
+var WBEventEmitter = core.WBEventEmitter;
+var assert = core.lib.assert;
+
+var ApplicationState = require('../models/ApplicationState');
+var IOHttp = require('../io/IO');
+
+var ServiceCreate = require('./Mixins/ServiceCreate');
+var ServiceDelete = require('./Mixins/ServiceDelete');
+var ServiceGet = require('./Mixins/ServiceGet');
+var ServiceUpdate = require('./Mixins/ServiceUpdate');
+
+var verbs = ['get', 'post', 'put', 'patch', 'delete'];
+
+var _super = WBEventEmitter.prototype;
+
+var BaseService = WBEventEmitter.extend({
+
+  'mixins': [
+    ServiceCreate,
+    ServiceDelete,
+    ServiceGet,
+    ServiceUpdate
+  ],
+
+  /**
+    * The service's base path. For example '/tasks' will become 'https://a.wunderlist.com/api/v1/tasks' when an HTTP request is made.
+    * @abstract
+    * @type {string}
+    */
+  'baseUrl': undefined,
+
+  /**
+    * The API version the service should use.
+    * @type {number}
+    */
+  'apiVersion': 1,
+
+  /**
+    * The service's resource type. For examples 'Task' for services/Tasks
+    * @abstract
+    * @type {string}
+    */
+  'type': undefined,
+
+  /**
+   * io helper
+   */
+  'io': undefined,
+
+  /**
+    * DELETE crud delete
+    * @method
+    */
+  'delete': undefined,
+
+  /**
+    * GET crud read
+    * @method
+    */
+  'get': undefined,
+
+  /**
+    * PATCH crud update
+    * @method
+    */
+  'patch': undefined,
+
+  /**
+    * POST crud create
+    * @method
+    */
+  'post': undefined,
+
+  /**
+    * PUT crud update
+    * @method
+    */
+  'put': undefined,
+
+  /**
+    * Base class for Wunderlist API service modules.
+    * @constructor
+    * @param {object} [options] - Class initialization options.
+    * @param {boolean} [options.websocket] - Proxy CRUD operations over a WebSocket.
+    * @alias module:services/Service
+    */
+  'initialize': function (options) {
+
+    var self = this;
+
+    _super.initialize.apply(self, arguments);
+
+    self.options = options = options || {};
+    self.appState = options.appState;
+
+    self.checkAppState();
+
+    self.baseUrl = '/v' + self.apiVersion + self.baseUrl;
+
+    if (self.options.websocket) {
+      self.setupSocketInterfaces();
+    }
+    else {
+      self.setupRestInterfaces();
+    }
+  },
+
+  'setupRestInterfaces': function () {
+
+    var self = this;
+
+    var io;
+
+    if (self.options.httpIO) {
+      io = self.options.httpIO;
+    }
+    else {
+      io = new IOHttp({
+        'config': self.appState.toJSON()
+      });
+    }
+
+    var http = self.io = io;
+
+    verbs.forEach(function (verb) {
+
+      self[verb] = http.io[verb];
+    });
+
+    self.bindTo(self.io, 'unauthorized', function () {
+
+      !self.destroyed &amp;&amp; self.trigger('unauthorized');
+    });
+  },
+
+  /**
+    * Allows service to create its own local appstate if one is not passed
+    * in initialization options
+    */
+  'checkAppState': function () {
+
+    var self = this;
+
+    if (!self.appState &amp;&amp; self.options.config) {
+      self.appState = new ApplicationState(self.options.config);
+      self.options.appState = self.appState;
+    }
+  },
+
+  /**
+    * Overrides default HTTP crud interfaces with RestSocket interfaces.
+    */
+  'setupSocketInterfaces': function () {
+
+    var self = this;
+    var socket = self.options.restSocket;
+
+    assert(socket, 'No RestSocket instance available.');
+
+    self.io = socket;
+
+    verbs.forEach(function (verb) {
+
+      self[verb] = self.io[verb];
+    });
+  },
+
+  /**
+    * Method to destroy and clean up instance.
+    */
+  'destroy': function () {
+
+    var self = this;
+
+    // clear all the bindings
+    self.unbindAll();
+
+    // delete all properties
+    // make sure a destroyed object is not keeping other
+    // objects alive by reference
+    function killEverything (obj) {
+      for (var key in obj) {
+        obj[key] = undefined;
+      }
+    }
+    killEverything(self);
+
+    // flag as destroyed, so objects internal methods
+    // can optionally check this before execution
+    self.destroyed = true;
+  },
+
+  /** TRUE when instance has been destroyed **/
+  'destroyed': false
+});
+
+module.exports = BaseService;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav class="index-nav">
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-config_default.html">config/default</a></li><li><a href="module-helpers_HealthCheck.html">helpers/HealthCheck</a></li><li><a href="module-helpers_Logger.html">helpers/Logger</a></li><li><a href="module-helpers_PlatformHeaders.html">helpers/PlatformHeaders</a></li><li><a href="module-helpers_URL.html">helpers/URL</a></li><li><a href="module-io_IO.html">io/IO</a></li><li><a href="module-io_io_AjaxTransport.html">io/io/AjaxTransport</a></li><li><a href="module-io_io_NativeWebSocket.html">io/io/NativeWebSocket</a></li><li><a href="module-io_io_NativeXMLHttpRequest.html">io/io/NativeXMLHttpRequest</a></li><li><a href="module-io_io_WebSocket.html">io/io/WebSocket</a></li><li><a href="module-io_mixins_RequestQueueMixin.html">io/mixins/RequestQueueMixin</a></li><li><a href="module-io_RestSocket.html">io/RestSocket</a></li><li><a href="module-services_Activities.html">services/Activities</a></li><li><a href="module-services_AuthenticatedService.html">services/AuthenticatedService</a></li><li><a href="module-services_Conversations.html">services/Conversations</a></li><li><a href="module-services_Export.html">services/Export</a></li><li><a href="module-services_Features.html">services/Features</a></li><li><a href="module-services_Files.html">services/Files</a></li><li><a href="module-services_Import.html">services/Import</a></li><li><a href="module-services_ListPositions.html">services/ListPositions</a></li><li><a href="module-services_Lists.html">services/Lists</a></li><li><a href="module-services_Memberships.html">services/Memberships</a></li><li><a href="module-services_Mixin_ServiceCreate.html">services/Mixin/ServiceCreate</a></li><li><a href="module-services_Mixin_ServiceDelete.html">services/Mixin/ServiceDelete</a></li><li><a href="module-services_Mixin_ServiceGet.html">services/Mixin/ServiceGet</a></li><li><a href="module-services_Mixin_ServiceUpdate.html">services/Mixin/ServiceUpdate</a></li><li><a href="module-services_Mixins_BaseServiceMixin.html">services/Mixins/BaseServiceMixin</a></li><li><a href="module-services_Notes.html">services/Notes</a></li><li><a href="module-services_Previews.html">services/Previews</a></li><li><a href="module-services_Products.html">services/Products</a></li><li><a href="module-services_Reminders.html">services/Reminders</a></li><li><a href="module-services_Root.html">services/Root</a></li><li><a href="module-services_Service.html">services/Service</a></li><li><a href="module-services_ServiceGetOnly.html">services/ServiceGetOnly</a></li><li><a href="module-services_Services.html">services/Services</a></li><li><a href="module-services_Settings.html">services/Settings</a></li><li><a href="module-services_SubtaskPositions.html">services/SubtaskPositions</a></li><li><a href="module-services_Subtasks.html">services/Subtasks</a></li><li><a href="module-services_TaskComments.html">services/TaskComments</a></li><li><a href="module-services_TaskCommentsStates.html">services/TaskCommentsStates</a></li><li><a href="module-services_TaskPositions.html">services/TaskPositions</a></li><li><a href="module-services_Tasks.html">services/Tasks</a></li><li><a href="module-services_TasksCount.html">services/TasksCount</a></li><li><a href="module-services_UnreadCounts.html">services/UnreadCounts</a></li><li><a href="module-services_Uploads.html">services/Uploads</a></li><li><a href="module-services_User.html">services/User</a></li><li><a href="module-services_Users.html">services/Users</a></li><li><a href="module-validators_SchemaValidator.html">validators/SchemaValidator</a></li><li><a href="module-wunderbits_lib_SafeParse.html">wunderbits/lib/SafeParse</a></li><li><a href="module-wunderlist_Wunderlist.html">wunderlist/Wunderlist</a></li></ul><h3>Events</h3><ul><li><a href="module-io_IO.html#event:unauthorized">unauthorized</a></li><li><a href="module-io_io_WebSocket.html#event:close">close</a></li><li><a href="module-io_io_WebSocket.html#event:error">error</a></li><li><a href="module-io_io_WebSocket.html#event:message">message</a></li><li><a href="module-io_io_WebSocket.html#event:open">open</a></li><li><a href="module-io_io_WebSocket.html#event:timeout">timeout</a></li><li><a href="module-io_RestSocket.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-io_RestSocket.html#event:event">event</a></li><li><a href="module-io_RestSocket.html#event:someCRUDOperation">someCRUDOperation</a></li><li><a href="module-io_RestSocket.html#event:unauthorized">unauthorized</a></li><li><a href="module-wunderlist_Wunderlist.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-wunderlist_Wunderlist.html#event:event">event</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Mon Mar 02 2015 13:07:15 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

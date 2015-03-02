@@ -1,0 +1,23 @@
+{
+  "public": {
+    "files": {
+      "src": [
+        "Gulpfile.js",
+        "public/**/*.js"
+      ]
+    },
+    "options": {
+      "jshintrc": ".jshintrc"
+    }
+  },
+  "tests": {
+    "files": {
+      "src": [
+        "tests/**/*.js"
+      ]
+    },
+    "options": {
+      "jshintrc": "tests/.jshintrc"
+    }
+  }
+}

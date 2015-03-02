@@ -1,0 +1,17 @@
+# System generated files
+node_modules
+npm-debug.log
+.DS_Store
+*.sublime-project
+
+# Files from build tools
+build
+*.gz
+*.tgz
+*.css
+/coverage
+/coverage.html
+
+# Files that should never be checked in
+examples/UNDERLIST/config.js
+public/config.js

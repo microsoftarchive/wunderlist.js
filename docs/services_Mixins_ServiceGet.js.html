@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/Mixins/ServiceGet.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+    <!-- webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,400italic' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+<h1 class="page-title">Source: services/Mixins/ServiceGet.js</h1>
+
+<div id="main">
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>'use strict';
+
+/**
+  * Provides convenience methods for working with Wunderlist API endpoints.
+  * @module services/Mixin/ServiceGet
+  * @requires module:wunderbits/WBMixin
+  * @extends module:wunderbits/WBMixin
+  */
+
+var core = require('wunderbits.core');
+var WBMixin = core.WBMixin;
+
+module.exports = WBMixin.extend({
+
+  /**
+    * Performs a GET using the id as part of the URI
+    * @param {number} id - the id being fetched
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'getID': function (id, requestID) {
+
+    var self = this;
+    return self.get(self.baseUrl + '/' + id, undefined, requestID);
+  },
+
+  /**
+    * Performs a GET using an arbitrary attribute and its id as params (?attribute=id)
+    * @param {string} url
+    * @param {string} attribute - the attribute
+    * @param {number|string} value - the attribute value
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'getItemsForAttribute': function (url, attribute, value, requestID) {
+
+    var self = this;
+    var data = {};
+
+    data[attribute] = value;
+
+    return self.get(url, data, requestID).promise();
+  },
+
+  /**
+    * Performs a GET for a user ID on the resource.
+    * @param {number} userId - The user id.
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'forUser': function (userId, requestID) {
+
+    var self = this;
+    return self.getItemsForAttribute(self.baseUrl, 'user_id', userId, requestID);
+  },
+
+  /**
+    * Performs a GET for a task ID on the resource.
+    * @param {number} taskId - The task ID.
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'forTask': function (taskId, requestID) {
+
+    var self = this;
+    return self.getItemsForAttribute(self.baseUrl, 'task_id', taskId, requestID);
+  },
+
+  /**
+    * Performs a GET for a list ID on the resource.
+    * @param {number} listId - The list ID.
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'forList': function (listId, requestID) {
+
+    var self = this;
+    return self.getItemsForAttribute(self.baseUrl, 'list_id', listId, requestID);
+  },
+
+  /**
+    * Perform a GET for all data for a resource without any params.
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'all': function (requestID) {
+
+    var self = this;
+    return self.get(self.baseUrl, undefined, requestID).promise();
+  },
+
+  /**
+    * Perform a GET for all data for a resource for all lists
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'forAllLists': function (requestID) {
+
+    var self = this;
+    return self.get(self.baseUrl + '/lists', undefined, requestID);
+  },
+
+  /**
+    * Perform a GET for all data for a resource for all tasks scoped to a list id
+    * @param {number} listId - The list ID.
+    * @param {string} [requestID] - Client supplied request ID
+    */
+  'forAllTasksForList': function (listId, requestID) {
+
+    var self = this;
+    return self.getItemsForAttribute(self.baseUrl + '/tasks', 'list_id', listId, requestID);
+  }
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav class="index-nav">
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-config_default.html">config/default</a></li><li><a href="module-helpers_HealthCheck.html">helpers/HealthCheck</a></li><li><a href="module-helpers_Logger.html">helpers/Logger</a></li><li><a href="module-helpers_PlatformHeaders.html">helpers/PlatformHeaders</a></li><li><a href="module-helpers_URL.html">helpers/URL</a></li><li><a href="module-io_IO.html">io/IO</a></li><li><a href="module-io_io_AjaxTransport.html">io/io/AjaxTransport</a></li><li><a href="module-io_io_NativeWebSocket.html">io/io/NativeWebSocket</a></li><li><a href="module-io_io_NativeXMLHttpRequest.html">io/io/NativeXMLHttpRequest</a></li><li><a href="module-io_io_WebSocket.html">io/io/WebSocket</a></li><li><a href="module-io_mixins_RequestQueueMixin.html">io/mixins/RequestQueueMixin</a></li><li><a href="module-io_RestSocket.html">io/RestSocket</a></li><li><a href="module-services_Activities.html">services/Activities</a></li><li><a href="module-services_AuthenticatedService.html">services/AuthenticatedService</a></li><li><a href="module-services_Conversations.html">services/Conversations</a></li><li><a href="module-services_Export.html">services/Export</a></li><li><a href="module-services_Features.html">services/Features</a></li><li><a href="module-services_Files.html">services/Files</a></li><li><a href="module-services_Import.html">services/Import</a></li><li><a href="module-services_ListPositions.html">services/ListPositions</a></li><li><a href="module-services_Lists.html">services/Lists</a></li><li><a href="module-services_Memberships.html">services/Memberships</a></li><li><a href="module-services_Mixin_ServiceCreate.html">services/Mixin/ServiceCreate</a></li><li><a href="module-services_Mixin_ServiceDelete.html">services/Mixin/ServiceDelete</a></li><li><a href="module-services_Mixin_ServiceGet.html">services/Mixin/ServiceGet</a></li><li><a href="module-services_Mixin_ServiceUpdate.html">services/Mixin/ServiceUpdate</a></li><li><a href="module-services_Mixins_BaseServiceMixin.html">services/Mixins/BaseServiceMixin</a></li><li><a href="module-services_Notes.html">services/Notes</a></li><li><a href="module-services_Previews.html">services/Previews</a></li><li><a href="module-services_Products.html">services/Products</a></li><li><a href="module-services_Reminders.html">services/Reminders</a></li><li><a href="module-services_Root.html">services/Root</a></li><li><a href="module-services_Service.html">services/Service</a></li><li><a href="module-services_ServiceGetOnly.html">services/ServiceGetOnly</a></li><li><a href="module-services_Services.html">services/Services</a></li><li><a href="module-services_Settings.html">services/Settings</a></li><li><a href="module-services_SubtaskPositions.html">services/SubtaskPositions</a></li><li><a href="module-services_Subtasks.html">services/Subtasks</a></li><li><a href="module-services_TaskComments.html">services/TaskComments</a></li><li><a href="module-services_TaskCommentsStates.html">services/TaskCommentsStates</a></li><li><a href="module-services_TaskPositions.html">services/TaskPositions</a></li><li><a href="module-services_Tasks.html">services/Tasks</a></li><li><a href="module-services_TasksCount.html">services/TasksCount</a></li><li><a href="module-services_UnreadCounts.html">services/UnreadCounts</a></li><li><a href="module-services_Uploads.html">services/Uploads</a></li><li><a href="module-services_User.html">services/User</a></li><li><a href="module-services_Users.html">services/Users</a></li><li><a href="module-validators_SchemaValidator.html">validators/SchemaValidator</a></li><li><a href="module-wunderbits_lib_SafeParse.html">wunderbits/lib/SafeParse</a></li><li><a href="module-wunderlist_Wunderlist.html">wunderlist/Wunderlist</a></li></ul><h3>Events</h3><ul><li><a href="module-io_IO.html#event:unauthorized">unauthorized</a></li><li><a href="module-io_io_WebSocket.html#event:close">close</a></li><li><a href="module-io_io_WebSocket.html#event:error">error</a></li><li><a href="module-io_io_WebSocket.html#event:message">message</a></li><li><a href="module-io_io_WebSocket.html#event:open">open</a></li><li><a href="module-io_io_WebSocket.html#event:timeout">timeout</a></li><li><a href="module-io_RestSocket.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-io_RestSocket.html#event:event">event</a></li><li><a href="module-io_RestSocket.html#event:someCRUDOperation">someCRUDOperation</a></li><li><a href="module-io_RestSocket.html#event:unauthorized">unauthorized</a></li><li><a href="module-wunderlist_Wunderlist.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-wunderlist_Wunderlist.html#event:event">event</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Mon Mar 02 2015 13:07:15 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

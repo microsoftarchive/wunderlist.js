@@ -1,0 +1,17 @@
+.gitignore
+.jshintrc
+.travis.yml
+build
+coverage
+dist
+docs
+examples
+grunt
+Gruntfile.js
+Gulpfile.js
+jsdoc.conf.json
+karma
+Makefile
+node_modules
+templates
+tests

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: io/IO.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+    <!-- webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,400italic' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+<h1 class="page-title">Source: io/IO.js</h1>
+
+<div id="main">
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>'use strict';
+
+/**
+  * Provides http IO.
+  * @module io/IO
+  * @extends module:io/IOBase
+  * @requires module:io/IOBase
+  *
+  * @example
+  * var IOHttp = require('io/IO');
+  *
+  * var params = {
+  *   'thingID': 1345
+  * };
+  *
+  * IOHttp.get('http://www.example.com/api/endpoint', params, 'asdflkj23094802938')
+  *   .done(function (response, code) {
+  *     //...
+  *   })
+  *   .fail(function (response, code) {
+  *     //...
+  *   });
+  */
+
+var core = require('wunderbits.core');
+var createUID = core.lib.createUID;
+var WBDeferred = core.WBDeferred;
+var WBBindableMixin = core.mixins.WBBindableMixin;
+var WBEventsMixin = core.mixins.WBEventsMixin;
+
+var SchemaValidator = require('../validators/SchemaValidator');
+var IOBase = require('./IOBase');
+
+var _super = IOBase.prototype;
+
+var MagiConsole = require('magiconsole');
+var localConsole = new MagiConsole('SDK:IO');
+
+var IO = IOBase.extend({
+
+  // make our rest IO evented
+  'mixins': [
+    WBBindableMixin,
+    WBEventsMixin
+  ],
+
+  /**
+    * @constructor
+    * @alias module:io/IO
+    */
+  'initialize': function (options) {
+
+    var self = this;
+    _super.initialize.apply(self, arguments);
+
+    self.config = options.config;
+
+    // set requests hash on instance
+    self.requests = {};
+
+    // verbs are programatically built by _super.initialize
+    // need to override now
+    self.wrapVerbs();
+  },
+
+  /**
+    * Moves unwrapped http verbs to _ prefixed names and sets up
+    * wrapped unprefixed verbs that execute through #requestWrapper
+    */
+  'wrapVerbs': function () {
+
+    var self = this;
+    var io = self.io;
+    ['get', 'patch', 'post', 'put', 'delete'].forEach(function (verb) {
+      io['_' + verb] = io[verb];
+      io[verb] = self.requestWrapper.bind(self, verb);
+    });
+  },
+
+  /**
+    * Hash for tracking requests made by an instance of this class
+    * @type {object}
+    */
+  'requests': {},
+
+  /**
+    * Map of token patterns for use by routes patterns
+    */
+  'tokens': {
+    'id': '([-])?[0-9]+',
+    'version': 'v(\\d)+',
+    'provider': '[a-z]+'
+  },
+
+  /**
+    * Map of paths patterns that should map to the 'api' host
+    */
+  'routes': {
+    'api': []
+  },
+
+  /**
+    * Map of paths patterns that do not require authorization headers
+    */
+  'authFreeRoutes': {
+    'api': [
+      'health',
+      '{{version}}/oauth/{{provider}}/exchange',
+      '{{version}}/signup',
+      '{{version}}/authenticate',
+      '{{version}}/user/password/reset'
+    ]
+  },
+
+  // make relative URLs absolute
+  'normalizeUrl': function (url) {
+
+    var self = this;
+    return self.config.api.host + url;
+  },
+
+  /**
+    * Extend #extendHeaders to inject clientID
+    */
+  'extendHeaders': function (headers) {
+
+    var self = this;
+
+    var clientID = self.config.clientID;
+    var deviceID = self.config.deviceID;
+    var instanceID = self.config.instanceID;
+
+    clientID &amp;&amp; (headers['x-client-id'] = clientID);
+    deviceID &amp;&amp;(headers['x-client-device-id'] = deviceID);
+    instanceID &amp;&amp; (headers['x-client-instance-id'] = instanceID);
+
+    if (typeof self.config.extendHeaders === 'function') {
+      self.config.extendHeaders(headers);
+    }
+
+    return _super.extendHeaders.apply(self, arguments);
+  },
+
+  /**
+    * Adds x-access-token and x-client-id headers to api endpoints that require them.
+    * @param {object} headers - current headers for the request being constructed
+    * @param {string} url - url for the request being constructed
+    */
+  'setAuthorization': function (headers) {
+
+    var self = this;
+
+    var accessToken = self.config.accessToken;
+    accessToken &amp;&amp; (headers['x-access-token'] = accessToken);
+  },
+
+ /**
+    * Wrapper for CRUD methods to inject supplied requestID, or auto generated requestID
+    * @returns {promise} Request promise.
+    * @param {string} method - HTTP method to execute
+    * @param {string} path - URI or path to make request against
+    * @param {object} [data] - Request body or hash of key value pairs for GET params
+    * @param {string} [requestID] - User supplied requestID to be sent as a header, auto generated if omitted
+    * @param {number} [timeout] - User supplied timeout in ms
+    */
+  'requestWrapper': function (method, path, data, requestID, timeout) {
+
+    var self = this;
+    var deferred = new WBDeferred();
+    var headers = {};
+
+    if (!requestID) {
+      requestID = self.generateUID();
+    }
+
+    self.requests[requestID] = deferred;
+
+    headers['x-client-request-id'] = requestID;
+
+    timeout = timeout ? parseInt(timeout, 10) : 60000;
+
+    self.io['_' + method](path, data, headers, timeout)
+      .done(function (response, xhr) {
+
+        if (Array.isArray(response)) {
+          response.forEach(function (item) {
+
+            if (item.type) {
+              SchemaValidator.validateData(item, item.type);
+            }
+          });
+        }
+        else if (response &amp;&amp; response.type) {
+          SchemaValidator.validateData(response, response.type);
+        }
+
+        localConsole.log(xhr.status, path);
+
+        // make the success state exatcly match socket success
+        deferred.resolve(response, xhr.status);
+      })
+      .fail(function (response, xhr) {
+
+        localConsole.error(xhr.status, xhr.statusText, path);
+
+        // make the failure state exactly match socket failure
+        deferred.reject(response, xhr.status);
+
+        if (xhr.status === 401) {
+          /**
+            * Unauthorized event
+            * @event module:io/IO#unauthorized
+            */
+          self.trigger('unauthorized');
+        }
+      })
+      .always(function () {
+        // drop reference, but keep id in hash
+        self.requests[requestID] = undefined;
+      });
+
+    return deferred.promise();
+  },
+
+  /**
+    * Generates unique indentifiers for proxy requests.
+    * @returns {string} UID
+    */
+  'generateUID': function () {
+
+    var self = this;
+    var uid;
+
+    while (!uid || !self.isUIDValid(uid)) {
+      uid = createUID();
+    }
+
+    return uid;
+  },
+
+  /**
+    * Checks that UID is not already used by a pending known request.
+    * @param {string} uid - UID
+    * @returns {boolean} - returns TRUE iff valid
+    */
+  'isUIDValid': function (uid) {
+
+    return !(uid in this.requests);
+  },
+
+  'cancelInflightCreate': function (requestID, onlineID, revision) {
+
+    var self = this;
+    var request = self.requests[requestID];
+
+    localConsole.debug('cancelling request locally', requestID, 'alive?', !!request);
+
+    if (request) {
+      self.requests[requestID] = undefined;
+      var data = onlineID ? {'id': onlineID} : {};
+      data.revision = revision;
+      request.resolve(data, 200);
+    }
+  }
+});
+
+module.exports = IO;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav class="index-nav">
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-config_default.html">config/default</a></li><li><a href="module-helpers_HealthCheck.html">helpers/HealthCheck</a></li><li><a href="module-helpers_Logger.html">helpers/Logger</a></li><li><a href="module-helpers_PlatformHeaders.html">helpers/PlatformHeaders</a></li><li><a href="module-helpers_URL.html">helpers/URL</a></li><li><a href="module-io_IO.html">io/IO</a></li><li><a href="module-io_io_AjaxTransport.html">io/io/AjaxTransport</a></li><li><a href="module-io_io_NativeWebSocket.html">io/io/NativeWebSocket</a></li><li><a href="module-io_io_NativeXMLHttpRequest.html">io/io/NativeXMLHttpRequest</a></li><li><a href="module-io_io_WebSocket.html">io/io/WebSocket</a></li><li><a href="module-io_mixins_RequestQueueMixin.html">io/mixins/RequestQueueMixin</a></li><li><a href="module-io_RestSocket.html">io/RestSocket</a></li><li><a href="module-services_Activities.html">services/Activities</a></li><li><a href="module-services_AuthenticatedService.html">services/AuthenticatedService</a></li><li><a href="module-services_Conversations.html">services/Conversations</a></li><li><a href="module-services_Export.html">services/Export</a></li><li><a href="module-services_Features.html">services/Features</a></li><li><a href="module-services_Files.html">services/Files</a></li><li><a href="module-services_Import.html">services/Import</a></li><li><a href="module-services_ListPositions.html">services/ListPositions</a></li><li><a href="module-services_Lists.html">services/Lists</a></li><li><a href="module-services_Memberships.html">services/Memberships</a></li><li><a href="module-services_Mixin_ServiceCreate.html">services/Mixin/ServiceCreate</a></li><li><a href="module-services_Mixin_ServiceDelete.html">services/Mixin/ServiceDelete</a></li><li><a href="module-services_Mixin_ServiceGet.html">services/Mixin/ServiceGet</a></li><li><a href="module-services_Mixin_ServiceUpdate.html">services/Mixin/ServiceUpdate</a></li><li><a href="module-services_Mixins_BaseServiceMixin.html">services/Mixins/BaseServiceMixin</a></li><li><a href="module-services_Notes.html">services/Notes</a></li><li><a href="module-services_Previews.html">services/Previews</a></li><li><a href="module-services_Products.html">services/Products</a></li><li><a href="module-services_Reminders.html">services/Reminders</a></li><li><a href="module-services_Root.html">services/Root</a></li><li><a href="module-services_Service.html">services/Service</a></li><li><a href="module-services_ServiceGetOnly.html">services/ServiceGetOnly</a></li><li><a href="module-services_Services.html">services/Services</a></li><li><a href="module-services_Settings.html">services/Settings</a></li><li><a href="module-services_SubtaskPositions.html">services/SubtaskPositions</a></li><li><a href="module-services_Subtasks.html">services/Subtasks</a></li><li><a href="module-services_TaskComments.html">services/TaskComments</a></li><li><a href="module-services_TaskCommentsStates.html">services/TaskCommentsStates</a></li><li><a href="module-services_TaskPositions.html">services/TaskPositions</a></li><li><a href="module-services_Tasks.html">services/Tasks</a></li><li><a href="module-services_TasksCount.html">services/TasksCount</a></li><li><a href="module-services_UnreadCounts.html">services/UnreadCounts</a></li><li><a href="module-services_Uploads.html">services/Uploads</a></li><li><a href="module-services_User.html">services/User</a></li><li><a href="module-services_Users.html">services/Users</a></li><li><a href="module-validators_SchemaValidator.html">validators/SchemaValidator</a></li><li><a href="module-wunderbits_lib_SafeParse.html">wunderbits/lib/SafeParse</a></li><li><a href="module-wunderlist_Wunderlist.html">wunderlist/Wunderlist</a></li></ul><h3>Events</h3><ul><li><a href="module-io_IO.html#event:unauthorized">unauthorized</a></li><li><a href="module-io_io_WebSocket.html#event:close">close</a></li><li><a href="module-io_io_WebSocket.html#event:error">error</a></li><li><a href="module-io_io_WebSocket.html#event:message">message</a></li><li><a href="module-io_io_WebSocket.html#event:open">open</a></li><li><a href="module-io_io_WebSocket.html#event:timeout">timeout</a></li><li><a href="module-io_RestSocket.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-io_RestSocket.html#event:event">event</a></li><li><a href="module-io_RestSocket.html#event:someCRUDOperation">someCRUDOperation</a></li><li><a href="module-io_RestSocket.html#event:unauthorized">unauthorized</a></li><li><a href="module-wunderlist_Wunderlist.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-wunderlist_Wunderlist.html#event:event">event</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Mon Mar 02 2015 13:07:15 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: services/Subtasks</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow-night.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+
+    <!-- webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,400italic' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+<h1 class="page-title">Module: services/Subtasks</h1>
+
+<div id="main">
+    
+
+
+
+<section>
+
+<header>
+    <h2>
+    services/Subtasks
+    </h2>
+
+    
+</header>
+
+
+
+<nav class="subsection-nav">
+  Jump to:
+  <ul>
+  
+    <li><a href="#extends">Extends</a></li>
+  
+
+  
+
+  
+    <li><a href="#requires">Requires</a></li>
+  
+
+  
+
+  
+
+  
+
+  
+    <li><a href="#methods">Methods</a></li>
+  
+
+  
+
+  
+  </ul>
+</nav>
+
+<article>
+    <div class="container-overview">
+    
+
+    
+        
+            <div class="description"><p>Provides methods for easy access to subtasks data.</p></div>
+        
+
+        
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="services_Subtasks.js.html">services/Subtasks.js</a>, <a href="services_Subtasks.js.html#line3">line 3</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+        
+            <h3>Examples</h3>
+            
+        <p class="code-caption">Create an instance of the Subtasks service</p>
+    
+    <pre class="prettyprint"><code>    var SubtasksService = require('services/Subtasks');
+    var subtasks = new SubtasksService();</code></pre>
+
+        <p class="code-caption">Get all uncompleted subtasks for a list</p>
+    
+    <pre class="prettyprint"><code>    var listID = 666;
+    subtasks.forList(listID)
+      .done(function (subtasksData, statusCode) {
+        // ...
+      })
+      .fail(function (resp, code) {
+        // ...
+      });</code></pre>
+
+        <p class="code-caption">Get completed subtasks for a list</p>
+    
+    <pre class="prettyprint"><code>    var listID = 3456
+    var completed = true;
+    subtasks.forList(listID, completed)
+      .done(function (subtasksData, statusCode) {
+        // ...
+      })
+      .fail(function (resp, code) {
+        // ...
+      });</code></pre>
+
+        <p class="code-caption">Get all uncompleted subtasks for a task</p>
+    
+    <pre class="prettyprint"><code>    var taskID = 666;
+    subtasks.forTask(taskID)
+      .done(function (subtasksData, statusCode) {
+        // ...
+      })
+      .fail(function (resp, code) {
+        // ...
+      });</code></pre>
+
+        <p class="code-caption">Get completed subtasks for a task</p>
+    
+    <pre class="prettyprint"><code>    var taskID = 3456
+    var completed = true;
+    subtasks.forTask(taskID, completed)
+      .done(function (subtasksData, statusCode) {
+        // ...
+      })
+      .fail(function (resp, code) {
+        // ...
+      });</code></pre>
+
+        <p class="code-caption">Get a specific subtask</p>
+    
+    <pre class="prettyprint"><code>    vat subtaskID = 777;
+    subtasks.getID(subtaskID)
+      .done(function (subtaskData, statusCode) {
+        // ...
+      })
+      .fail(function (resp, code) {
+        // ...
+      });</code></pre>
+
+        <p class="code-caption">Create a subtask</p>
+    
+    <pre class="prettyprint"><code>    subtasks.create({
+      'task_id': 8675309
+      'title': 'Call Jenny'
+    })
+    .done(function (subtaskData, statusCode) {
+      // ...
+    })
+    .fail(function (resp, code) {
+      // ...
+    });</code></pre>
+
+        <p class="code-caption">Update a subtask</p>
+    
+    <pre class="prettyprint"><code>    var subtaskID = 777;
+    var subtaskRevision = 5;
+    var updateData = {
+      'title': 'Change the world'
+    };
+    subtasks.update(subtaskID, subtaskRevision, updateData)
+      .done(function (subtaskData, statusCode) {
+        // ...
+      })
+      .fail(function (resp, code) {
+        // ...
+      });</code></pre>
+
+        <p class="code-caption">Delete a subtask</p>
+    
+    <pre class="prettyprint"><code>    var subtaskID = 777;
+    var subtaskRevision = 5;
+    subtasks.deleteID(subtaskID, subtaskRevision)
+      .always(function (resp, code) {
+        // ...
+      });</code></pre>
+
+        
+    
+    </div>
+
+    
+    <div class="subsection" id="extends">
+        <h3 class="subsection-title extends">Extends</h3>
+        <ul>
+        
+            <li><a href="module-services_AuthenticatedService.html">module:services/AuthenticatedService</a></li>
+        
+        </ul>
+    </div>
+    
+
+    
+
+    
+    <div class="subsection" id="requires">
+        <h3 class="subsection-title requires">Requires</h3>
+        <ul>
+        
+            <li><a href="module-services_AuthenticatedService.html">module:services/AuthenticatedService</a></li>
+        
+        </ul>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="subsection" id="methods">
+        <h3 class="subsection-title methods">Methods</h3>
+        <dl>
+        
+            
+<dt>
+    <h4 class="name" id="~create">
+        
+            <span class="name">create</span>
+        
+            <span class="signature"><span class="signature">(data, <span class="optional">requestID</span>)</span><span class="type-signature"> &rarr; {promise}</span></span>
+        
+        <span class="type-signature">&lt;inner> </span>
+    </h4>    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Create a subtask.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Subtask creation data.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>task_id</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Task ID which subtask belongs to.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>title</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Subtask title. Maximum length is 255 characters.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>completed</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Is subtask completed?</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>requestID</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>User supplied Request ID. Autogenerated if not supplied.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="services_Subtasks.js.html">services/Subtasks.js</a>, <a href="services_Subtasks.js.html#line124">line 124</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>Promise of request deferred.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">promise</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="~forList">
+        
+            <span class="name">forList</span>
+        
+            <span class="signature"><span class="signature">(listId, <span class="optional">completed</span>, <span class="optional">requestID</span>)</span><span class="type-signature"></span></span>
+        
+        <span class="type-signature">&lt;inner> </span>
+    </h4>    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Allows fetching either all or just uncompleted subtasks for a list.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>listId</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>The list to fetch.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>completed</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Fetch for completed tasks when TRUE</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>requestID</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>User supplied Request ID. Autogenerated if not supplied.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="services_Subtasks.js.html">services/Subtasks.js</a>, <a href="services_Subtasks.js.html#line147">line 147</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="~validateCreateData">
+        
+            <span class="name">validateCreateData</span>
+        
+            <span class="signature"><span class="signature">(data)</span><span class="type-signature"></span></span>
+        
+        <span class="type-signature">&lt;inner> </span>
+    </h4>    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Validates subtask creation data.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Subtask data.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="services_Subtasks.js.html">services/Subtasks.js</a>, <a href="services_Subtasks.js.html#line163">line 163</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+        </dl>
+    </div>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav class="index-nav">
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-config_default.html">config/default</a></li><li><a href="module-helpers_HealthCheck.html">helpers/HealthCheck</a></li><li><a href="module-helpers_Logger.html">helpers/Logger</a></li><li><a href="module-helpers_PlatformHeaders.html">helpers/PlatformHeaders</a></li><li><a href="module-helpers_URL.html">helpers/URL</a></li><li><a href="module-io_IO.html">io/IO</a></li><li><a href="module-io_io_AjaxTransport.html">io/io/AjaxTransport</a></li><li><a href="module-io_io_NativeWebSocket.html">io/io/NativeWebSocket</a></li><li><a href="module-io_io_NativeXMLHttpRequest.html">io/io/NativeXMLHttpRequest</a></li><li><a href="module-io_io_WebSocket.html">io/io/WebSocket</a></li><li><a href="module-io_mixins_RequestQueueMixin.html">io/mixins/RequestQueueMixin</a></li><li><a href="module-io_RestSocket.html">io/RestSocket</a></li><li><a href="module-services_Activities.html">services/Activities</a></li><li><a href="module-services_AuthenticatedService.html">services/AuthenticatedService</a></li><li><a href="module-services_Conversations.html">services/Conversations</a></li><li><a href="module-services_Export.html">services/Export</a></li><li><a href="module-services_Features.html">services/Features</a></li><li><a href="module-services_Files.html">services/Files</a></li><li><a href="module-services_Import.html">services/Import</a></li><li><a href="module-services_ListPositions.html">services/ListPositions</a></li><li><a href="module-services_Lists.html">services/Lists</a></li><li><a href="module-services_Memberships.html">services/Memberships</a></li><li><a href="module-services_Mixin_ServiceCreate.html">services/Mixin/ServiceCreate</a></li><li><a href="module-services_Mixin_ServiceDelete.html">services/Mixin/ServiceDelete</a></li><li><a href="module-services_Mixin_ServiceGet.html">services/Mixin/ServiceGet</a></li><li><a href="module-services_Mixin_ServiceUpdate.html">services/Mixin/ServiceUpdate</a></li><li><a href="module-services_Mixins_BaseServiceMixin.html">services/Mixins/BaseServiceMixin</a></li><li><a href="module-services_Notes.html">services/Notes</a></li><li><a href="module-services_Previews.html">services/Previews</a></li><li><a href="module-services_Products.html">services/Products</a></li><li><a href="module-services_Reminders.html">services/Reminders</a></li><li><a href="module-services_Root.html">services/Root</a></li><li><a href="module-services_Service.html">services/Service</a></li><li><a href="module-services_ServiceGetOnly.html">services/ServiceGetOnly</a></li><li><a href="module-services_Services.html">services/Services</a></li><li><a href="module-services_Settings.html">services/Settings</a></li><li><a href="module-services_SubtaskPositions.html">services/SubtaskPositions</a></li><li><a href="module-services_Subtasks.html">services/Subtasks</a></li><li><a href="module-services_TaskComments.html">services/TaskComments</a></li><li><a href="module-services_TaskCommentsStates.html">services/TaskCommentsStates</a></li><li><a href="module-services_TaskPositions.html">services/TaskPositions</a></li><li><a href="module-services_Tasks.html">services/Tasks</a></li><li><a href="module-services_TasksCount.html">services/TasksCount</a></li><li><a href="module-services_UnreadCounts.html">services/UnreadCounts</a></li><li><a href="module-services_Uploads.html">services/Uploads</a></li><li><a href="module-services_User.html">services/User</a></li><li><a href="module-services_Users.html">services/Users</a></li><li><a href="module-validators_SchemaValidator.html">validators/SchemaValidator</a></li><li><a href="module-wunderbits_lib_SafeParse.html">wunderbits/lib/SafeParse</a></li><li><a href="module-wunderlist_Wunderlist.html">wunderlist/Wunderlist</a></li></ul><h3>Events</h3><ul><li><a href="module-io_IO.html#event:unauthorized">unauthorized</a></li><li><a href="module-io_io_WebSocket.html#event:close">close</a></li><li><a href="module-io_io_WebSocket.html#event:error">error</a></li><li><a href="module-io_io_WebSocket.html#event:message">message</a></li><li><a href="module-io_io_WebSocket.html#event:open">open</a></li><li><a href="module-io_io_WebSocket.html#event:timeout">timeout</a></li><li><a href="module-io_RestSocket.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-io_RestSocket.html#event:event">event</a></li><li><a href="module-io_RestSocket.html#event:someCRUDOperation">someCRUDOperation</a></li><li><a href="module-io_RestSocket.html#event:unauthorized">unauthorized</a></li><li><a href="module-wunderlist_Wunderlist.html#event:desktopNotification">desktopNotification</a></li><li><a href="module-wunderlist_Wunderlist.html#event:event">event</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Mon Mar 02 2015 13:07:16 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

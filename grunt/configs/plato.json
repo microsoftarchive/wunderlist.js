@@ -1,0 +1,41 @@
+{
+  "application": {
+    "files": {
+      "build/plato/application": [
+        "public/application/**/*.js"
+      ]
+    }
+  },
+  
+  "helpers": {
+    "files": {
+      "build/plato/helpers": [
+        "public/helpers/**/*.js"
+      ]
+    }
+  },
+
+  "io": {
+    "files": {
+      "build/plato/io": [
+        "public/io/**/*.js"
+      ]
+    }
+  },
+
+  "services": {
+    "files": {
+      "build/plato/services": [
+        "public/services/**/*.js"
+      ]
+    }
+  },
+
+  "wunderlist": {
+    "files": {
+      "build/plato/wunderlist": [
+        "public/wunderlist/**/*.js"
+      ]
+    }
+  }
+}

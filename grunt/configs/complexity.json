@@ -1,0 +1,18 @@
+{
+  "options": {
+    "cyclomatic": 5,
+    "halstead": 20,
+    "maintainability": 100,
+    "errorsOnly": true
+  },
+  "public": {
+    "src": [
+      "public/**/*.js",
+
+      "!public/config.js",
+      "!public/schemas/index.js",
+      "!public/config-default.js",
+      "!public/services/index.js"
+    ]
+  }
+}
