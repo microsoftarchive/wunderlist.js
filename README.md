@@ -37,7 +37,7 @@ var WunderlistSDK = window.wunderlist.sdk;
 ```
 ... or as an AMD module (if an AMD loader was present before the sdk was loaded) ...
 
-```javascript```
+```javascript
 define(['wunderlist.sdk'], function (WunderlistSDK) {
   // do stuff with wunderlist by getting an instance of the sdk through WunderlistSDK#start
 });
