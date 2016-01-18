@@ -44,6 +44,6 @@
     "magiconsole": "~0.2.2",
     "ws": "~0.4.31",
     "wunderbits.core": "^0.1.14",
-    "xmlhttprequest": "^1.6.0"
+    "xmlhttprequest": "1.6.0"
   }
 }
