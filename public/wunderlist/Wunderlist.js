@@ -6,6 +6,7 @@
   * @requires module:wunderbits.core/WBEventEmitter
   * @requires module:wunderbits/lib/dependencies
 
+  * @requires module:services/Folders
   * @requires module:services/Lists
   * @requires module:services/Memberships
   * @requires module:services/Notes
@@ -90,6 +91,7 @@ var Wunderlist = WBEventEmitter.extend({
   /**
     * Holds references to instances of API HTTP service modules once Wunderlist initialization is completed and successful.
     * @type {object}
+    * @property {instance} [folders] - HTTP Instance of {@link module:services/Folders}
     * @property {instance} [lists] - HTTP Instance of {@link module:services/Lists}
     * @property {instance} [memberships] - HTTP Instance of {@link module:services/Memberships}
     * @property {instance} [notes]- HTTP Instance of {@link module:services/Notes}
@@ -104,6 +106,7 @@ var Wunderlist = WBEventEmitter.extend({
   /**
     * Holds references to instances of API WebSocket service modules once Wunderlist initialization is completed and successful.
     * @type {object}
+    * @property {instance} [folders] - HTTP Instance of {@link module:services/Folders}
     * @property {instance} [lists] - WebSocket Instance of {@link module:services/Lists}
     * @property {instance} [memberships] - WebSocket Instance of {@link module:services/Memberships}
     * @property {instance} [notes]- WebSocket Instance of {@link module:services/Notes}
