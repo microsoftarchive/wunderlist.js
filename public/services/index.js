@@ -8,6 +8,7 @@ var services = {
   'export': require('./Export'),
   'features': require('./Features'),
   'files': require('./Files'),
+  'folders': require('./Folders'),
   'import': require('./Import'),
   'ical_feed': require('./IcalFeed'),
   'list_positions': require('./ListPositions'),

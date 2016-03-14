@@ -1,69 +1,4 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var n;"undefined"!=typeof window?n=window:"undefined"!=typeof global?n=global:"undefined"!=typeof self&&(n=self),(n.wunderlist||(n.wunderlist={})).sdk=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
-    }
-
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
-    }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-}
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-
-},{}],2:[function(_dereq_,module,exports){
 (function (process,global){
 'use strict';
 
@@ -264,8 +199,73 @@ else {
   module.exports = MagiConsole;
 }
 
-}).call(this,_dereq_("Rdh0rp"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"Rdh0rp":1,"wunderbits.core/public/WBClass":5,"wunderbits.core/public/lib/assert":13,"wunderbits.core/public/lib/functions":23,"wunderbits.core/public/lib/toArray":29}],3:[function(_dereq_,module,exports){
+}).call(this,_dereq_("pBGvAp"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"pBGvAp":2,"wunderbits.core/public/WBClass":5,"wunderbits.core/public/lib/assert":13,"wunderbits.core/public/lib/functions":23,"wunderbits.core/public/lib/toArray":29}],2:[function(_dereq_,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+
+process.nextTick = (function () {
+    var canSetImmediate = typeof window !== 'undefined'
+    && window.setImmediate;
+    var canPost = typeof window !== 'undefined'
+    && window.postMessage && window.addEventListener
+    ;
+
+    if (canSetImmediate) {
+        return function (f) { return window.setImmediate(f) };
+    }
+
+    if (canPost) {
+        var queue = [];
+        window.addEventListener('message', function (ev) {
+            var source = ev.source;
+            if ((source === window || source === null) && ev.data === 'process-tick') {
+                ev.stopPropagation();
+                if (queue.length > 0) {
+                    var fn = queue.shift();
+                    fn();
+                }
+            }
+        }, true);
+
+        return function nextTick(fn) {
+            queue.push(fn);
+            window.postMessage('process-tick', '*');
+        };
+    }
+
+    return function nextTick(fn) {
+        setTimeout(fn, 0);
+    };
+})();
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+}
+
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+
+},{}],3:[function(_dereq_,module,exports){
 'use strict';
 
 var BaseEmitter = _dereq_('./WBEventEmitter').extend({
@@ -2835,7 +2835,7 @@ var IO = IOBase.extend({
 
 module.exports = IO;
 
-},{"../validators/SchemaValidator":109,"./IOBase":47,"magiconsole":2,"wunderbits.core":12}],47:[function(_dereq_,module,exports){
+},{"../validators/SchemaValidator":110,"./IOBase":47,"magiconsole":1,"wunderbits.core":12}],47:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 
@@ -3832,7 +3832,7 @@ var RestSocket = WBEventEmitter.extend({
 
 module.exports = RestSocket;
 
-},{"../deferreds/RestSocketRequestDeferred":42,"../helpers/PlatformHeaders":44,"../helpers/URL":45,"../validators/SchemaValidator":109,"../wunderbits/lib/SafeParse":111,"./io/WebSocket":52,"./mixins/RequestQueueMixin":53,"magiconsole":2,"wunderbits.core":12}],49:[function(_dereq_,module,exports){
+},{"../deferreds/RestSocketRequestDeferred":42,"../helpers/PlatformHeaders":44,"../helpers/URL":45,"../validators/SchemaValidator":110,"../wunderbits/lib/SafeParse":112,"./io/WebSocket":52,"./mixins/RequestQueueMixin":53,"magiconsole":1,"wunderbits.core":12}],49:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -4146,7 +4146,7 @@ var AjaxTransport = WBSingleton.extend({
 });
 
 module.exports = AjaxTransport;
-},{"../../deferreds/RequestDeferred":41,"../../helpers/URL":45,"../../wunderbits/lib/SafeParse":111,"../mixins/RequestQueueMixin":53,"./NativeXMLHttpRequest":51,"wunderbits.core":12}],50:[function(_dereq_,module,exports){
+},{"../../deferreds/RequestDeferred":41,"../../helpers/URL":45,"../../wunderbits/lib/SafeParse":112,"../mixins/RequestQueueMixin":53,"./NativeXMLHttpRequest":51,"wunderbits.core":12}],50:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 
@@ -4459,7 +4459,7 @@ var WebSocketClass = WBEventEmitter.extend({
 
 module.exports = WebSocketClass;
 
-},{"../../helpers/URL":45,"../../wunderbits/lib/bindAll":112,"./NativeWebSocket":50,"magiconsole":2,"wunderbits.core":12}],53:[function(_dereq_,module,exports){
+},{"../../helpers/URL":45,"../../wunderbits/lib/bindAll":113,"./NativeWebSocket":50,"magiconsole":1,"wunderbits.core":12}],53:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -4673,7 +4673,7 @@ var ApplicationState = WBStateModel.extend({
 });
 
 module.exports = ApplicationState;
-},{"../wunderbits/WBOnlineStatus":110,"wunderbits.core":12}],55:[function(_dereq_,module,exports){
+},{"../wunderbits/WBOnlineStatus":111,"wunderbits.core":12}],55:[function(_dereq_,module,exports){
 'use strict';
 
 var core = _dereq_('wunderbits.core');
@@ -4983,7 +4983,7 @@ module.exports = BaseService.extend({
   }
 });
 
-},{"./Service":93,"wunderbits.core":12}],74:[function(_dereq_,module,exports){
+},{"./Service":94,"wunderbits.core":12}],74:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5044,7 +5044,7 @@ module.exports = ServiceGetOnly.extend({
   }
 });
 
-},{"./ServiceGetOnly":94}],76:[function(_dereq_,module,exports){
+},{"./ServiceGetOnly":95}],76:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5063,7 +5063,7 @@ module.exports = ServiceGetOnly.extend({
   'type': 'feature'
 });
 
-},{"./ServiceGetOnly":94}],77:[function(_dereq_,module,exports){
+},{"./ServiceGetOnly":95}],77:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5173,7 +5173,173 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73,"magiconsole":2,"wunderbits.core":12}],78:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73,"magiconsole":1,"wunderbits.core":12}],78:[function(_dereq_,module,exports){
+'use strict';
+
+/**
+ * Provides methods for easy access to folder data.
+ * @module services/Folder
+ * @extends module:services/AuthenticatedService
+ * @requires module:services/AuthenticatedService
+
+ * @example <caption>Create an instance of the Folders service</caption>
+ var FolderService = require('services/Folders');
+ var folders = new FolderService();
+
+ * @example <caption>Get all folders for a user_id</caption>
+ var userID = 984587;
+ folders.forUser(userID)
+ .done(function (folderData, statusCode) {
+        // ...
+      })
+ .fail(function (resp, code) {
+        // ...
+      });
+
+ * @example <caption>Get a specific folder</caption>
+ vat folderID = 777;
+ folders.getID(folderID)
+ .done(function (folderData, statusCode) {
+        // ...
+      })
+ .fail(function (resp, code) {
+        // ...
+      });
+
+ * @example <caption>Create a folder</caption>
+ folders.create({
+      'title': 'Bad Movies'
+    })
+ .done(function (folderData, statusCode) {
+      // ...
+    })
+ .fail(function (resp, code) {
+      // ...
+    });
+
+ * @example <caption>Update a folder</caption>
+ var folderID = 777;
+ var folderRevision = 5;
+ var updateData = {
+      'title': 'Good Bad Movies',
+    };
+
+ folders.update(folderID, folderRevision, updateData)
+ .done(function (folderData, statusCode) {
+        // ...
+      })
+ .fail(function (resp, code) {
+        // ...
+      });
+
+ * @example <caption>Delete a folder</caption>
+ var folderID = 777;
+ var folderRevision = 5;
+ folders.deleteID(folderID, folderRevision)
+ .always(function (resp, code) {
+        // ...
+      });
+ */
+
+var core = _dereq_('wunderbits.core');
+var assert = core.lib.assert;
+var WBDeferred = core.WBDeferred;
+var MagiConsole = _dereq_('magiconsole');
+var localConsole = new MagiConsole('SDK:SERVICE:FOLDERS');
+
+var MembershipsService = _dereq_('./Memberships');
+var AuthenticatedService = _dereq_('./AuthenticatedService');
+
+var _super = AuthenticatedService.prototype;
+module.exports = AuthenticatedService.extend({
+
+    'baseUrl': '/folders',
+
+    'type': 'folder',
+
+
+    'initialize': function (options) {
+
+        var self = this;
+        _super.initialize.apply(self, arguments);
+
+        self.membershipsService = new MembershipsService(options);
+    },
+
+    /**
+     * Create a folder.
+     * @param {object} data - Folder creation data.
+     * @param {string} data.title - Folder title.
+     * @param {string} [requestID] - User supplied Request ID. Autogenerated if not supplied.
+     * @returns {promise} Promise of request deferred.
+     */
+    'create': function (data) {
+
+        var self = this;
+        try {
+            self.validateCreateData(data);
+        }
+        catch (e) {
+            localConsole.error(e);
+            return new WBDeferred().reject({
+                'errors': [e.toString()]
+            }, 0).promise();
+        }
+
+        var request = _super.create.apply(self, arguments);
+        return request.promise();
+    },
+
+    /**
+     * Returns current user's accepted folders only
+     */
+    'accepted': function () {
+
+        var self = this;
+        var deferred = new WBDeferred();
+
+        self.membershipsService.mine()
+            .done(function (myMemberships) {
+
+                var acceptedMemberships = myMemberships.filter(function (membership) {
+
+                    return membership.state === 'accepted';
+                });
+
+                var acceptedIDs = acceptedMemberships.map(function (acceptedMembership) {
+
+                    return acceptedMembership.folder_id;
+                });
+
+                self.all()
+                    .done(function (allFolders) {
+
+                        var myFolders = allFolders.filter(function (folder) {
+
+                            return acceptedIDs.indexOf(folder.id) > -1;
+                        });
+
+                        deferred.resolve(myFolders);
+                    })
+                    .fail(deferred.reject, deferred);
+            })
+            .fail(deferred.reject, deferred);
+
+        return deferred.promise();
+    },
+
+    /**
+     * Validates subtask creation data.
+     * @param {object} data - Subtask data.
+     */
+    'validateCreateData': function (data) {
+
+        data = data || {};
+        assert(data.title, 'Title is required for folder creation.');
+    }
+});
+
+},{"./AuthenticatedService":73,"./Memberships":84,"magiconsole":1,"wunderbits.core":12}],79:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5197,7 +5363,7 @@ module.exports = ServiceGetOnly.extend({
   }
 });
 
-},{"./ServiceGetOnly":94}],79:[function(_dereq_,module,exports){
+},{"./ServiceGetOnly":95}],80:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5220,7 +5386,7 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73}],80:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],81:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5268,7 +5434,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'list_position'
 });
 
-},{"./AuthenticatedService":73}],81:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],82:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5298,7 +5464,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'list_reminders_collection'
 });
 
-},{"./AuthenticatedService":73}],82:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],83:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5464,7 +5630,7 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73,"./Memberships":83,"magiconsole":2,"wunderbits.core":12}],83:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73,"./Memberships":84,"magiconsole":1,"wunderbits.core":12}],84:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5586,7 +5752,7 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73,"./User":106,"wunderbits.core":12}],84:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73,"./User":107,"wunderbits.core":12}],85:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5612,7 +5778,7 @@ module.exports = WBMixin.extend({
   }
 });
 
-},{"../../validators/SchemaValidator":109,"wunderbits.core":12}],85:[function(_dereq_,module,exports){
+},{"../../validators/SchemaValidator":110,"wunderbits.core":12}],86:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5682,7 +5848,7 @@ module.exports = BaseServiceMixin.extend({
   }
 });
 
-},{"./BaseServiceMixin":84,"magiconsole":2,"wunderbits.core":12}],86:[function(_dereq_,module,exports){
+},{"./BaseServiceMixin":85,"magiconsole":1,"wunderbits.core":12}],87:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5734,7 +5900,7 @@ module.exports = WBMixin.extend({
   }
 });
 
-},{"../../helpers/URL":45,"magiconsole":2,"wunderbits.core":12}],87:[function(_dereq_,module,exports){
+},{"../../helpers/URL":45,"magiconsole":1,"wunderbits.core":12}],88:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5842,7 +6008,7 @@ module.exports = WBMixin.extend({
   }
 });
 
-},{"wunderbits.core":12}],88:[function(_dereq_,module,exports){
+},{"wunderbits.core":12}],89:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -5921,7 +6087,7 @@ module.exports = BaseServiceMixin.extend({
   }
 });
 
-},{"./BaseServiceMixin":84,"magiconsole":2,"wunderbits.core":12}],89:[function(_dereq_,module,exports){
+},{"./BaseServiceMixin":85,"magiconsole":1,"wunderbits.core":12}],90:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6011,7 +6177,7 @@ module.exports = AuthenticatedService.extend({
   },
 });
 
-},{"./AuthenticatedService":73}],90:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],91:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6056,7 +6222,7 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73}],91:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],92:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6159,7 +6325,7 @@ module.exports = AuthenticatedService.extend({
   },
 });
 
-},{"./AuthenticatedService":73}],92:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],93:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6189,7 +6355,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'root'
 });
 
-},{"./AuthenticatedService":73}],93:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],94:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6411,7 +6577,7 @@ var BaseService = WBEventEmitter.extend({
 
 module.exports = BaseService;
 
-},{"../io/IO":46,"../models/ApplicationState":54,"./Mixins/ServiceCreate":85,"./Mixins/ServiceDelete":86,"./Mixins/ServiceGet":87,"./Mixins/ServiceUpdate":88,"wunderbits.core":12}],94:[function(_dereq_,module,exports){
+},{"../io/IO":46,"../models/ApplicationState":54,"./Mixins/ServiceCreate":86,"./Mixins/ServiceDelete":87,"./Mixins/ServiceGet":88,"./Mixins/ServiceUpdate":89,"wunderbits.core":12}],95:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6472,7 +6638,7 @@ module.exports = BaseService.extend({
   'put': notAllowed
 });
 
-},{"../io/IO":46,"./Mixins/ServiceGet":87,"./Service":93,"wunderbits.core":12}],95:[function(_dereq_,module,exports){
+},{"../io/IO":46,"./Mixins/ServiceGet":88,"./Service":94,"wunderbits.core":12}],96:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6489,7 +6655,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'service'
 });
 
-},{"./AuthenticatedService":73}],96:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],97:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6565,7 +6731,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'setting'
 });
 
-},{"./AuthenticatedService":73}],97:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],98:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6648,7 +6814,7 @@ module.exports = AuthenticatedService.extend({
   },
 });
 
-},{"./AuthenticatedService":73}],98:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],99:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6823,7 +6989,7 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73,"magiconsole":2,"wunderbits.core":12}],99:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73,"magiconsole":1,"wunderbits.core":12}],100:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6890,7 +7056,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'task_comment'
 });
 
-},{"./AuthenticatedService":73}],100:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],101:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6921,7 +7087,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'task_comments_state'
 });
 
-},{"./AuthenticatedService":73}],101:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],102:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -6977,7 +7143,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'task_position'
 });
 
-},{"./AuthenticatedService":73}],102:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],103:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7138,7 +7304,7 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73,"magiconsole":2,"wunderbits.core":12}],103:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73,"magiconsole":1,"wunderbits.core":12}],104:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7169,7 +7335,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'tasks_count'
 });
 
-},{"./AuthenticatedService":73}],104:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],105:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7198,7 +7364,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'unread_activities_count'
 });
 
-},{"./AuthenticatedService":73}],105:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],106:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7272,7 +7438,7 @@ module.exports = AuthenticatedService.extend({
     return self.patch(self.baseUrl + '/' + id, params, requestID);
   }
 });
-},{"./AuthenticatedService":73}],106:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],107:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7376,7 +7542,7 @@ module.exports = AuthenticatedService.extend({
   }
 });
 
-},{"./AuthenticatedService":73,"magiconsole":2,"wunderbits.core":12}],107:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73,"magiconsole":1,"wunderbits.core":12}],108:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7406,7 +7572,7 @@ module.exports = AuthenticatedService.extend({
   'type': 'user'
 });
 
-},{"./AuthenticatedService":73}],108:[function(_dereq_,module,exports){
+},{"./AuthenticatedService":73}],109:[function(_dereq_,module,exports){
 'use strict';
 
 var ServiceGetOnly = _dereq_('./ServiceGetOnly');
@@ -7417,6 +7583,7 @@ var services = {
   'export': _dereq_('./Export'),
   'features': _dereq_('./Features'),
   'files': _dereq_('./Files'),
+  'folders': _dereq_('./Folders'),
   'import': _dereq_('./Import'),
   'ical_feed': _dereq_('./IcalFeed'),
   'list_positions': _dereq_('./ListPositions'),
@@ -7474,7 +7641,7 @@ revisionedEndpoints.forEach(function (type) {
 
 module.exports = services;
 
-},{"./Activities":72,"./Conversations":74,"./Export":75,"./Features":76,"./Files":77,"./IcalFeed":78,"./Import":79,"./ListPositions":80,"./ListRemindersCollections":81,"./Lists":82,"./Memberships":83,"./Notes":89,"./Previews":90,"./Reminders":91,"./Root":92,"./ServiceGetOnly":94,"./Services.js":95,"./Settings":96,"./SubtaskPositions":97,"./Subtasks":98,"./TaskComments":99,"./TaskCommentsStates":100,"./TaskPositions":101,"./Tasks":102,"./TasksCounts":103,"./UnreadActivitiesCounts":104,"./Uploads":105,"./User":106,"./Users":107}],109:[function(_dereq_,module,exports){
+},{"./Activities":72,"./Conversations":74,"./Export":75,"./Features":76,"./Files":77,"./Folders":78,"./IcalFeed":79,"./Import":80,"./ListPositions":81,"./ListRemindersCollections":82,"./Lists":83,"./Memberships":84,"./Notes":90,"./Previews":91,"./Reminders":92,"./Root":93,"./ServiceGetOnly":95,"./Services.js":96,"./Settings":97,"./SubtaskPositions":98,"./Subtasks":99,"./TaskComments":100,"./TaskCommentsStates":101,"./TaskPositions":102,"./Tasks":103,"./TasksCounts":104,"./UnreadActivitiesCounts":105,"./Uploads":106,"./User":107,"./Users":108}],110:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7604,7 +7771,7 @@ var SchemaValidator = WBSingleton.extend({
 
 module.exports = SchemaValidator;
 
-},{"../schemas":71,"magiconsole":2,"wunderbits.core":12}],110:[function(_dereq_,module,exports){
+},{"../schemas":71,"magiconsole":1,"wunderbits.core":12}],111:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 
@@ -7683,7 +7850,7 @@ var WBOnlineStatus = WBEventEmitter.extend({
 module.exports = WBOnlineStatus;
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../helpers/HealthCheck":43,"wunderbits.core":12}],111:[function(_dereq_,module,exports){
+},{"../helpers/HealthCheck":43,"wunderbits.core":12}],112:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7718,7 +7885,7 @@ var SafeParse = WBSingleton.extend({
 });
 
 module.exports = SafeParse;
-},{"magiconsole":2,"wunderbits.core":12}],112:[function(_dereq_,module,exports){
+},{"magiconsole":1,"wunderbits.core":12}],113:[function(_dereq_,module,exports){
 'use strict';
 
 var core = _dereq_('wunderbits.core');
@@ -7744,7 +7911,7 @@ var bindAll = (function () {
 
 module.exports = bindAll;
 
-},{"wunderbits.core":12}],113:[function(_dereq_,module,exports){
+},{"wunderbits.core":12}],114:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -7753,6 +7920,7 @@ module.exports = bindAll;
   * @requires module:wunderbits.core/WBEventEmitter
   * @requires module:wunderbits/lib/dependencies
 
+  * @requires module:services/Folders
   * @requires module:services/Lists
   * @requires module:services/Memberships
   * @requires module:services/Notes
@@ -7837,6 +8005,7 @@ var Wunderlist = WBEventEmitter.extend({
   /**
     * Holds references to instances of API HTTP service modules once Wunderlist initialization is completed and successful.
     * @type {object}
+    * @property {instance} [folders] - HTTP Instance of {@link module:services/Folders}
     * @property {instance} [lists] - HTTP Instance of {@link module:services/Lists}
     * @property {instance} [memberships] - HTTP Instance of {@link module:services/Memberships}
     * @property {instance} [notes]- HTTP Instance of {@link module:services/Notes}
@@ -7851,6 +8020,7 @@ var Wunderlist = WBEventEmitter.extend({
   /**
     * Holds references to instances of API WebSocket service modules once Wunderlist initialization is completed and successful.
     * @type {object}
+    * @property {instance} [folders] - HTTP Instance of {@link module:services/Folders}
     * @property {instance} [lists] - WebSocket Instance of {@link module:services/Lists}
     * @property {instance} [memberships] - WebSocket Instance of {@link module:services/Memberships}
     * @property {instance} [notes]- WebSocket Instance of {@link module:services/Notes}
@@ -8165,7 +8335,7 @@ var Wunderlist = WBEventEmitter.extend({
 
 module.exports = Wunderlist;
 
-},{"../config/default":40,"../helpers/PlatformHeaders":44,"../io/IO":46,"../io/RestSocket":48,"../io/io/AjaxTransport":49,"../models/ApplicationState":54,"../services":108,"magiconsole":2,"wunderbits.core":12}]},{},[113])
+},{"../config/default":40,"../helpers/PlatformHeaders":44,"../io/IO":46,"../io/RestSocket":48,"../io/io/AjaxTransport":49,"../models/ApplicationState":54,"../services":109,"magiconsole":1,"wunderbits.core":12}]},{},[114])
 //@ sourceMappingURL=wunderlist.sdk.map
-(113)
+(114)
 });
