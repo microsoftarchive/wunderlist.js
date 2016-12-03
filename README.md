@@ -117,7 +117,7 @@ If you are on a vanilla system, you need some tools
 
 ### Make yourself owner of /usr/local:
 
-  $ sudo chown -R `whoami`:staff /usr/local
+    $ sudo chown -R `whoami`:staff /usr/local
 
 ### One time setup:
 
