@@ -227,45 +227,54 @@ var Wunderlist = WBEventEmitter.extend({
 
     var accessToken = self.appState.attributes.accessToken;
 
-    self.createSocket(accessToken).done(function createServices () {
-
-      // clear old services
-      self.http = undefined;
-      self.socket = undefined;
-
-      // from args, options, or default to all
-      services = services || self.options.services || Object.keys(ServiceClasses);
-
-      self.httpIO = new IOHttp({
-        'config': self.appState.toJSON()
-      });
-
-      for (var i = 0, len = services.length; i < len; i++) {
-        service = services[i];
-        Klass = ServiceClasses[service];
-
-        // http service
-        compiledServices.http[service] = new Klass({
-          'appState': self.appState,
-          'httpIO': self.httpIO
-        });
-        self.bindTo(compiledServices.http[service], 'unauthorized', self.onUnauthorized);
-
-        // socket service
-        compiledServices.socket[service] = new Klass({
-          'websocket': true,
-          'restSocket': self.restSocket,
-          'appState': self.appState
-        });
-      }
-
-      self.http = compiledServices.http;
-      self.socket = compiledServices.socket;
-
-      deferred.resolve(compiledServices);
-    });
+    if(self.appState.attributes.sockets === true) {
+      self.createSocket(accessToken).done(self.createServices(compiledServices, deferred));
+    } else {
+      self.createServices(compiledServices, deferred)
+    }
 
     return deferred.promise();
+  },
+
+  'createServices': function (compiledServices, deferred) {
+    var self = this
+    var services
+    var service
+    var Klass
+    // clear old services
+    self.http = undefined;
+    self.socket = undefined;
+
+    // from args, options, or default to all
+    services = services || self.options.services || Object.keys(ServiceClasses);
+
+    self.httpIO = new IOHttp({
+      'config': self.appState.toJSON()
+    });
+
+    for (var i = 0, len = services.length; i < len; i++) {
+      service = services[i];
+      Klass = ServiceClasses[service];
+
+      // http service
+      compiledServices.http[service] = new Klass({
+        'appState': self.appState,
+        'httpIO': self.httpIO
+      });
+      self.bindTo(compiledServices.http[service], 'unauthorized', self.onUnauthorized);
+
+      // socket service
+      compiledServices.socket[service] = new Klass({
+        'websocket': self.appState.attributes.sockets,
+        'restSocket': self.restSocket,
+        'appState': self.appState
+      });
+    }
+
+    self.http = compiledServices.http;
+    self.socket = compiledServices.socket;
+
+    deferred.resolve(compiledServices);
   },
 
   'isSocketOnline': function () {
