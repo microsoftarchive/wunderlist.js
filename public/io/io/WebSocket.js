@@ -250,6 +250,10 @@ var WebSocketClass = WBEventEmitter.extend({
     var self = this;
 
     self.clearSocketTimeout();
+    self.socket.removeEventListener('close', self.onSocketClose);
+    self.socket.removeEventListener('error', self.onSocketError);
+    self.socket.removeEventListener('message', self.onSocketMessage);
+    self.socket.removeEventListener('open', self.onSocketOpen);
     self.socket = undefined;
     localConsole.info('closed', e);
     /**

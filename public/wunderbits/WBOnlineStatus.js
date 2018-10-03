@@ -39,6 +39,8 @@ var WBOnlineStatus = WBEventEmitter.extend({
 
   'destroy': function () {
 
+    global.removeEventListener('online', self.onOnline.bind(self), false);
+    global.removeEventListener('offline', self.onOffline.bind(self), false);
     HealthCheck.destroy();
   },
 
